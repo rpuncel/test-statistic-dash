@@ -1,0 +1,73 @@
+---
+title: "Test statistics, critical values, p values, oh my!"
+server: shiny
+---
+
+```{r}
+#| context: setup
+library(ggplot2)
+dataset <- diamonds
+```
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+```{r}
+#| label: imports
+
+library(ggplot2)
+library(shiny)
+``` 
+
+
+```{r}
+ radioButtons( 
+    inputId = "distribution-type", 
+    label = "Distribution Type", 
+    choices = list( 
+      "T" = 1, 
+      "F" = 2, 
+      "Chi-squared" = 3 
+    ) 
+  )
+```
+
+```{r}
+plotOutput('plot')
+```
+
+```{r}
+#| context: server
+#| 
+t_dist <- dt(-4:4, df=10)
+
+x_min = -4
+x_max = 4
+df = 10
+lower_critical_val <- qt(0.025, df=df)
+upper_critical_val <- qt(0.975, df=df)
+output$plot <- renderPlot(
+ggplot() +
+    xlim(-4, 4) +
+    stat_function(fun=dt, args=list(df=df)) +
+    labs(
+        title = "t distribution"
+    ) +
+    stat_function(fun = dt, args = list(df = df), 
+            xlim = c(upper_critical_val,x_max), geom = "area", fill = "red", alpha = 0.5) +
+                stat_function(fun = dt, args = list(df = df), 
+            xlim = c(x_min,lower_critical_val), geom = "area", fill = "red", alpha = 0.5)
+)
+
+```
+
+```{r}
+#| include: FALSE
+#| context: server
+# Create a base plot with the desired x-axis range
+renderPlot(ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+  stat_function(fun = dt, args = list(df = 10), color = "blue", linewidth = 1) +
+  labs(title = "t-Distribution (df = 10)", y = "Density")
+)
+```
