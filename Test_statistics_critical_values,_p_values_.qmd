@@ -62,13 +62,16 @@ numericInput(
     step=0.01
 )
 
-radioButtons(
-    "tailness",
-    "One tail or two tailed",
-    choices = list(
-        "one-tailed",
-        "two-tailed"
-    )
+radioButtons("altHypothesis",
+    label = "alternate hypothesis",
+    selected="neq",
+    choiceNames = list(
+        withMathJax("\\(\\mu_{1} \\neq \\mu_{2} \\)"),
+        withMathJax("\\(\\mu{1} < \\mu{2}\\)"),
+        withMathJax("\\(\\mu{1} > \\mu{2}\\)")
+    ),
+    choiceValues = list("neq", "lt", "gt")
+
 )
 
 #textInput("foo", label="test update")
@@ -102,13 +105,18 @@ distribution_functions <- list(
 )
 
 
-dist_plot <- function (distribution, df, tailness, sig_level, test_statistic=0) {
+dist_plot <- function (distribution, df, alt_hypo, sig_level, test_statistic=0) {
     x_min <- -4
     x_max <- 4
 
     d_fun <- distribution_functions[[distribution]]$d
     q_fun <- distribution_functions[[distribution]]$q
 
+    if(alt_hypo == "neq") {
+        tailness <- "two-tailed"
+    } else {
+        tailness <- "one-tailed"
+    }
 
     add_critical_regions <- function(ggplot_) {
         if(tailness == "one-tailed") {
@@ -181,9 +189,10 @@ dist_plot <- function (distribution, df, tailness, sig_level, test_statistic=0) 
 ```{r}
 #| context: server
 #| 
-dist_plot('t', df=10, tailness="one-tailed", 0.05)
+#dist_plot('t', df=10, tailness="one-tailed", 0.05)
 
-dist_plot('t', df=10, tailness="two-tailed", 0.05)
+#dist_plot('t', df=10, tailness="two-tailed", 0.05)
+
 
 ```
 
@@ -195,6 +204,8 @@ sig_level <- reactive(input$siglevel)
 tailness <- reactive(input$tailness)
 test_statistic <- reactive(input$test_statistic)
 distribution_type <- reactive(input$distribution_type)
+
+alt_hypo <- reactive(input$altHypothesis)
 ```
 ```{r}
 #| include: FALSE
@@ -202,7 +213,7 @@ distribution_type <- reactive(input$distribution_type)
 # Create a base plot with the desired x-axis range
 output$debug <- renderText(df())
 output$plot <- renderPlot(
-    dist_plot('t', df(), tailness = tailness(), sig_level=sig_level(), test_statistic=test_statistic())
+    dist_plot('t', df(), alt_hypo=alt_hypo(), sig_level=sig_level(), test_statistic=test_statistic())
 
 )
 output$pval <- renderText(
