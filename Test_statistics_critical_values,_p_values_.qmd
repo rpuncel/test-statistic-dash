@@ -1,17 +1,16 @@
 ---
 title: "Test statistics, critical values, p values, oh my!"
 server: shiny
+format: dashboard
+orientation: rows
 ---
 
 ```{r}
 #| context: setup
 library(ggplot2)
+library(magrittr)
 dataset <- diamonds
 ```
-
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
 ```{r}
 #| label: imports
@@ -21,17 +20,20 @@ library(shiny)
 ``` 
 
 
+## Controls {.sidebar}
 ```{r}
  radioButtons( 
-    inputId = "distribution-type", 
+    inputId = "distribution_type", 
     label = "Distribution Type", 
     choices = list( 
-      "T" = 1, 
-      "F" = 2, 
-      "Chi-squared" = 3 
+      "T", 
+      "F", 
+      "Chi-squared"
     ) 
   )
+```
 
+```{r}
 numericInput( 
     "df", 
     "Degrees of freedom", 
@@ -39,6 +41,18 @@ numericInput(
     min = 1
 )
 
+conditionalPanel(
+    condition = "input.distribution_type == 'F'",
+    numericInput(
+        "dfd",
+        "Degrees of freedom (denominator)",
+        min=1,
+        value=10
+    )
+)
+```
+
+```{r}
 numericInput( 
     "siglevel", 
     "Significance level", 
@@ -56,10 +70,17 @@ radioButtons(
         "two-tailed"
     )
 )
+
+#textInput("foo", label="test update")
 ```
 
+## Rows
 ```{r}
 plotOutput('plot')
+```
+
+
+```{r}
 textOutput(outputId = "pval") # p value of the test statistic
 textOutput(outputId = "conclusion")
 numericInput('test_statistic',
@@ -68,9 +89,6 @@ label = "Test statistic value:"
 ```
 
 
-```{r}
-textOutput('debug')
-```
 
 ```{r}
 #| context: server
@@ -176,6 +194,7 @@ df <- reactive(input$df)
 sig_level <- reactive(input$siglevel)
 tailness <- reactive(input$tailness)
 test_statistic <- reactive(input$test_statistic)
+distribution_type <- reactive(input$distribution_type)
 ```
 ```{r}
 #| include: FALSE
@@ -193,4 +212,7 @@ output$pval <- renderText(
 output$conclusion <- renderText(
     "yes"
 )
+#observe({
+#    updateTextInput(inputId="foo", value=input$distribution_type)
+#}) %>% bindEvent(input$distribution_type)
 ```
