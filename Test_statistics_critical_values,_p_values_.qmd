@@ -60,7 +60,13 @@ radioButtons(
 
 ```{r}
 plotOutput('plot')
+
+numericInput('test_statistic',
+label = "Test statistic value:"
+, value=0)
 ```
+
+
 ```{r}
 textOutput('debug')
 ```
@@ -76,7 +82,7 @@ distribution_functions <- list(
 )
 
 
-dist_plot <- function (distribution, df, tailness, sig_level) {
+dist_plot <- function (distribution, df, tailness, sig_level, test_statistic=0) {
     x_min <- -4
     x_max <- 4
 
@@ -125,6 +131,11 @@ dist_plot <- function (distribution, df, tailness, sig_level) {
         stat_function(fun=d_fun, args=list(df=df)) +
         labs(
             title = "t distribution"
+        ) + geom_vline(
+            aes(
+                xintercept=test_statistic,
+            ),                 linetype='dashed'
+
         )
     add_critical_regions(ggplot_)
 
@@ -147,6 +158,7 @@ dist_plot('t', df=10, tailness="two-tailed", 0.05)
 df <- reactive(input$df)
 sig_level <- reactive(input$siglevel)
 tailness <- reactive(input$tailness)
+test_statistic <- reactive(input$test_statistic)
 ```
 ```{r}
 #| include: FALSE
@@ -154,7 +166,7 @@ tailness <- reactive(input$tailness)
 # Create a base plot with the desired x-axis range
 output$debug <- renderText(df())
 output$plot <- renderPlot(
-    dist_plot('t', df(), tailness = tailness(), sig_level=sig_level())
+    dist_plot('t', df(), tailness = tailness(), sig_level=sig_level(), test_statistic=test_statistic())
 
 )
 ```
