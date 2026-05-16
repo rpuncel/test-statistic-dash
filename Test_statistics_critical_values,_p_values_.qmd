@@ -95,7 +95,7 @@ label = "Test statistic value:"
 
 ```{r}
 #| context: server
-#| 
+#| label: plot 
 distribution_functions <- list(
     "t" =  list(
         d = dt,
@@ -121,10 +121,15 @@ dist_plot <- function (distribution, df, alt_hypo, sig_level, test_statistic=0) 
     add_critical_regions <- function(ggplot_) {
         if(tailness == "one-tailed") {
         critical_val <- q_fun(1 - sig_level, df)
+        if(alt_hypo == "lt") {
+            xlim <- c(x_min, -1 * critical_val)
+        } else {
+            xlim <- c(critical_val, x_max)
+        }
         return(ggplot_ + stat_function(aes(fill = "Critical region"),
                 fun = d_fun,
                 args = list(df = df), 
-                xlim = c(critical_val,x_max),
+                xlim = xlim,
                 geom = "area", alpha = 0.5
                 
             ) +                scale_fill_manual(
