@@ -38,6 +38,15 @@ numericInput(
     value = 10, 
     min = 1
 )
+
+numericInput( 
+    "siglevel", 
+    "Significance level", 
+    value = 0.05, 
+    min = 0,
+    max=1,
+    step=0.01
+)
 ```
 
 ```{r}
@@ -101,6 +110,7 @@ dist_plot('t', 10, "one", 0.05)
 #| context: server
 
 df <- reactive(input$df)
+sig_level <- reactive(input$siglevel)
 ```
 ```{r}
 #| include: FALSE
@@ -108,7 +118,7 @@ df <- reactive(input$df)
 # Create a base plot with the desired x-axis range
 output$debug <- renderText(df())
 output$plot <- renderPlot(
-    dist_plot('t', df(), "one", 0.05)
+    dist_plot('t', df(), "one", sig_level=sig_level())
 
 )
 ```
