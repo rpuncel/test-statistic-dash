@@ -92,7 +92,9 @@ dist_plot <- function (distribution, df, tailness, sig_level) {
                 args = list(df = df), 
                 xlim = c(critical_val,x_max),
                 geom = "area", fill = "red", alpha = 0.5
-            ) 
+                
+            ) +
+             geom_text(aes(x=critical_val, y=0, label=paste(critical_val)))
         )
         } else {
             upper_critical_val <- q_fun(1 - sig_level / 2, df)
@@ -110,7 +112,10 @@ dist_plot <- function (distribution, df, tailness, sig_level) {
                 geom = "area",
                 fill = "red",
                 alpha = 0.5
-            )
+            ) +
+             geom_text(aes(x=upper_critical_val, y=0, label=paste(upper_critical_val)))
+            +
+             geom_text(aes(x=lower_critical_val, y=0, label=paste(lower_critical_val)))
             )
         }
 
