@@ -47,6 +47,15 @@ numericInput(
     max=1,
     step=0.01
 )
+
+radioButtons(
+    "tailness",
+    "One tail or two tailed",
+    choices = list(
+        "one-tailed",
+        "two-tailed"
+    )
+)
 ```
 
 ```{r}
@@ -111,6 +120,7 @@ dist_plot('t', 10, "one", 0.05)
 
 df <- reactive(input$df)
 sig_level <- reactive(input$siglevel)
+tailness <- reactive(input$tailness)
 ```
 ```{r}
 #| include: FALSE
@@ -118,7 +128,7 @@ sig_level <- reactive(input$siglevel)
 # Create a base plot with the desired x-axis range
 output$debug <- renderText(df())
 output$plot <- renderPlot(
-    dist_plot('t', df(), "one", sig_level=sig_level())
+    dist_plot('t', df(), tailness = tailness(), sig_level=sig_level())
 
 )
 ```
