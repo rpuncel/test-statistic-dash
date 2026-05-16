@@ -38,6 +38,8 @@ plotOutput('plot')
 ```
 
 ```{r}
+#| context: server
+#| 
 distribution_functions <- list(
     "t" =  list(
         d = dt,
@@ -48,9 +50,11 @@ dist_plot <- function (distribution, df, tailness, sig_level) {
     x_min <- -4
     x_max <- 4
 
-
     d_fun <- distribution_functions[[distribution]]$d
     q_fun <- distribution_functions[[distribution]]$q
+
+    upper_critical_val <- q_fun(1 - sig_level / 2, df)
+    lower_critical_val <- q_fun(sig_level / 2, df)
     ggplot() +
         xlim(x_min, x_max) +
         stat_function(fun=d_fun, args=list(df=df)) +
@@ -87,8 +91,9 @@ dist_plot('t', 10, "one", 0.05)
 #| include: FALSE
 #| context: server
 # Create a base plot with the desired x-axis range
-renderPlot(ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
-  stat_function(fun = dt, args = list(df = 10), color = "blue", linewidth = 1) +
-  labs(title = "t-Distribution (df = 10)", y = "Density")
+
+output$plot <- renderPlot(
+    dist_plot('t', 10, "one", 0.05)
+
 )
 ```
