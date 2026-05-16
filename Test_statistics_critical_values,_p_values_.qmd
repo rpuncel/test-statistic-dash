@@ -123,6 +123,7 @@ dist_plot <- function (distribution, df, alt_hypo, sig_level, test_statistic=0) 
         critical_val <- q_fun(1 - sig_level, df)
         if(alt_hypo == "lt") {
             xlim <- c(x_min, -1 * critical_val)
+            critical_val = -1 * critical_val
         } else {
             xlim <- c(critical_val, x_max)
         }
@@ -137,9 +138,7 @@ dist_plot <- function (distribution, df, alt_hypo, sig_level, test_statistic=0) 
                 ) +
              #geom_text(aes(x=critical_val, y=0, label=paste(critical_val)))
             geom_vline(aes(xintercept=critical_val, color="Critical Value"), linetype="dashed")
-            + scale_color_manual(
-                 values = c("Critical Value" = "red", "Test Statistic" = "blue")
-                )
+
 
         )
         } else {
@@ -149,7 +148,8 @@ dist_plot <- function (distribution, df, alt_hypo, sig_level, test_statistic=0) 
                 fun = d_fun,
                 args = list(df = df), 
                 xlim = c(upper_critical_val,x_max),
-                geom = "area", fill = "red", alpha = 0.5
+                geom = "area", alpha = 0.5,
+                aes(fill = "Critical Region")
             ) +
             stat_function(
                 fun = d_fun,
@@ -159,8 +159,9 @@ dist_plot <- function (distribution, df, alt_hypo, sig_level, test_statistic=0) 
                 fill = "red",
                 alpha = 0.5
             ) +
-             geom_text(aes(x=upper_critical_val, y=0, label=paste(upper_critical_val)))
-            +
+            geom_vline(aes(xintercept=upper_critical_val, color="Critical Value"), linetype="dashed") +
+            geom_vline(aes(xintercept=lower_critical_val, color="Critical Value"), linetype="dashed") +
+             geom_text(aes(x=upper_critical_val, y=0, label=paste(upper_critical_val))) +
              geom_text(aes(x=lower_critical_val, y=0, label=paste(lower_critical_val)))
             )
         }
@@ -178,13 +179,9 @@ dist_plot <- function (distribution, df, alt_hypo, sig_level, test_statistic=0) 
             
 
         ) +
-            stat_function(
-                fun = d_fun,
-                args = list(df = df), 
-                xlim = c(test_statistic,x_max),
-                geom = "area", fill = "blue", alpha = 0.7
-            ) +
-            geom_text(aes(x = test_statistic, y = 0, label = "hi"))
+            geom_text(aes(x = test_statistic, y = 0, label = "hi")) + scale_color_manual(
+                 values = c("Critical Value" = "red", "Test Statistic" = "blue")
+                )
     add_critical_regions(ggplot_)
 
 }
