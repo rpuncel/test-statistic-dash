@@ -38,27 +38,48 @@ plotOutput('plot')
 ```
 
 ```{r}
+distribution_functions <- list(
+    "t" =  list(
+        d = dt,
+        q = qt
+    )
+)
+dist_plot <- function (distribution, df, tailness, sig_level) {
+    x_min <- -4
+    x_max <- 4
+
+
+    d_fun <- distribution_functions[[distribution]]$d
+    q_fun <- distribution_functions[[distribution]]$q
+    ggplot() +
+        xlim(x_min, x_max) +
+        stat_function(fun=d_fun, args=list(df=df)) +
+        labs(
+            title = "t distribution"
+        ) +
+        stat_function(
+            fun = d_fun,
+            args = list(df = df), 
+            xlim = c(upper_critical_val,x_max),
+            geom = "area", fill = "red", alpha = 0.5
+        ) +
+        stat_function(
+            fun = d_fun,
+            args = list(df = df), 
+            xlim = c(x_min,lower_critical_val),
+            geom = "area",
+            fill = "red",
+            alpha = 0.5
+        )
+
+}
+
+```
+
+```{r}
 #| context: server
 #| 
-t_dist <- dt(-4:4, df=10)
-
-x_min = -4
-x_max = 4
-df = 10
-lower_critical_val <- qt(0.025, df=df)
-upper_critical_val <- qt(0.975, df=df)
-output$plot <- renderPlot(
-ggplot() +
-    xlim(-4, 4) +
-    stat_function(fun=dt, args=list(df=df)) +
-    labs(
-        title = "t distribution"
-    ) +
-    stat_function(fun = dt, args = list(df = df), 
-            xlim = c(upper_critical_val,x_max), geom = "area", fill = "red", alpha = 0.5) +
-                stat_function(fun = dt, args = list(df = df), 
-            xlim = c(x_min,lower_critical_val), geom = "area", fill = "red", alpha = 0.5)
-)
+dist_plot('t', 10, "one", 0.05)
 
 ```
 
