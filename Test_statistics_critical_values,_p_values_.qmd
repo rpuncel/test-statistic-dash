@@ -74,6 +74,8 @@ distribution_functions <- list(
         q = qt
     )
 )
+
+
 dist_plot <- function (distribution, df, tailness, sig_level) {
     x_min <- -4
     x_max <- 4
@@ -81,28 +83,45 @@ dist_plot <- function (distribution, df, tailness, sig_level) {
     d_fun <- distribution_functions[[distribution]]$d
     q_fun <- distribution_functions[[distribution]]$q
 
-    upper_critical_val <- q_fun(1 - sig_level / 2, df)
-    lower_critical_val <- q_fun(sig_level / 2, df)
-    ggplot() +
+
+    add_critical_regions <- function(ggplot_) {
+        if(tailness == "one-tailed") {
+        critical_val <- q_fun(1 - sig_level, df)
+        return(ggplot_ + stat_function(
+                fun = d_fun,
+                args = list(df = df), 
+                xlim = c(critical_val,x_max),
+                geom = "area", fill = "red", alpha = 0.5
+            ) 
+        )
+        } else {
+            upper_critical_val <- q_fun(1 - sig_level / 2, df)
+            lower_critical_val <- q_fun(sig_level / 2, df)
+            return(ggplot_ + stat_function(
+                fun = d_fun,
+                args = list(df = df), 
+                xlim = c(upper_critical_val,x_max),
+                geom = "area", fill = "red", alpha = 0.5
+            ) +
+            stat_function(
+                fun = d_fun,
+                args = list(df = df), 
+                xlim = c(x_min,lower_critical_val),
+                geom = "area",
+                fill = "red",
+                alpha = 0.5
+            )
+            )
+        }
+
+    }
+    ggplot_ <- ggplot() +
         xlim(x_min, x_max) +
         stat_function(fun=d_fun, args=list(df=df)) +
         labs(
             title = "t distribution"
-        ) +
-        stat_function(
-            fun = d_fun,
-            args = list(df = df), 
-            xlim = c(upper_critical_val,x_max),
-            geom = "area", fill = "red", alpha = 0.5
-        ) +
-        stat_function(
-            fun = d_fun,
-            args = list(df = df), 
-            xlim = c(x_min,lower_critical_val),
-            geom = "area",
-            fill = "red",
-            alpha = 0.5
         )
+    add_critical_regions(ggplot_)
 
 }
 
@@ -111,7 +130,9 @@ dist_plot <- function (distribution, df, tailness, sig_level) {
 ```{r}
 #| context: server
 #| 
-dist_plot('t', 10, "one", 0.05)
+dist_plot('t', df=10, tailness="one-tailed", 0.05)
+
+dist_plot('t', df=10, tailness="two-tailed", 0.05)
 
 ```
 
