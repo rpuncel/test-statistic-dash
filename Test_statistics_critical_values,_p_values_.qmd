@@ -60,7 +60,7 @@ radioButtons(
 
 ```{r}
 plotOutput('plot')
-
+textOutput(outputId = "pval") # p value of the test statistic
 numericInput('test_statistic',
 label = "Test statistic value:"
 , value=0)
@@ -183,5 +183,9 @@ output$debug <- renderText(df())
 output$plot <- renderPlot(
     dist_plot('t', df(), tailness = tailness(), sig_level=sig_level(), test_statistic=test_statistic())
 
+)
+output$pval <- renderText(
+    paste("p-value: ",
+    distribution_functions[['t']]$d(test_statistic(), df()))
 )
 ```
