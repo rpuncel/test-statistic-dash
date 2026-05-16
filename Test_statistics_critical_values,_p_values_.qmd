@@ -93,14 +93,21 @@ dist_plot <- function (distribution, df, tailness, sig_level, test_statistic=0) 
     add_critical_regions <- function(ggplot_) {
         if(tailness == "one-tailed") {
         critical_val <- q_fun(1 - sig_level, df)
-        return(ggplot_ + stat_function(
+        return(ggplot_ + stat_function(aes(fill = "Critical region"),
                 fun = d_fun,
                 args = list(df = df), 
                 xlim = c(critical_val,x_max),
-                geom = "area", fill = "red", alpha = 0.5
+                geom = "area", alpha = 0.5
                 
-            ) +
-             geom_text(aes(x=critical_val, y=0, label=paste(critical_val)))
+            ) +                scale_fill_manual(
+                    values = c("Critical region" = "red")
+                ) +
+             #geom_text(aes(x=critical_val, y=0, label=paste(critical_val)))
+            geom_vline(aes(xintercept=critical_val, color="Critical Value"), linetype="dashed")
+            + scale_color_manual(
+                 values = c("Critical Value" = "red", "Test Statistic" = "blue")
+                )
+
         )
         } else {
             upper_critical_val <- q_fun(1 - sig_level / 2, df)
@@ -133,10 +140,18 @@ dist_plot <- function (distribution, df, tailness, sig_level, test_statistic=0) 
             title = "t distribution"
         ) + geom_vline(
             aes(
-                xintercept=test_statistic,
-            ),                 linetype='dashed'
+                xintercept=test_statistic, color="Test Statistic"
+            ),linetype='dashed'
+            
 
-        )
+        ) +
+            stat_function(
+                fun = d_fun,
+                args = list(df = df), 
+                xlim = c(test_statistic,x_max),
+                geom = "area", fill = "blue", alpha = 0.7
+            ) +
+            geom_text(aes(x = test_statistic, y = 0, label = "hi"))
     add_critical_regions(ggplot_)
 
 }
