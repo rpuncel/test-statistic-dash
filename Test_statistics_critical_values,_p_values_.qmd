@@ -31,10 +31,20 @@ library(shiny)
       "Chi-squared" = 3 
     ) 
   )
+
+numericInput( 
+    "df", 
+    "Degrees of freedom", 
+    value = 10, 
+    min = 1
+)
 ```
 
 ```{r}
 plotOutput('plot')
+```
+```{r}
+textOutput('debug')
 ```
 
 ```{r}
@@ -88,12 +98,17 @@ dist_plot('t', 10, "one", 0.05)
 ```
 
 ```{r}
+#| context: server
+
+df <- reactive(input$df)
+```
+```{r}
 #| include: FALSE
 #| context: server
 # Create a base plot with the desired x-axis range
-
+output$debug <- renderText(df())
 output$plot <- renderPlot(
-    dist_plot('t', 10, "one", 0.05)
+    dist_plot('t', df(), "one", 0.05)
 
 )
 ```
