@@ -203,6 +203,20 @@ calculate_pval <- function(alt_hypo, df, t_stat) {
     }
 }
 
+calculate_crit_val <- function(alt_hypo, df, t_stat, sig_level) {
+
+    if (alt_hypo == "neq") {
+        lower_critical_val <- qt(sig_level / 2, df)
+        upper_critical_val <- qt(1 - sig_level / 2, df)
+        return(c(lower_critical_val, upper_critical_val))
+    } else if (alt_hypo == "lt") {
+        return(qt(sig_level, df))
+    } else {
+        return(qt(1-sig_level, df))
+    } 
+}    
+
+
 ```
 ```{r}
 #| context: server
@@ -239,7 +253,12 @@ output$pval <- renderText(
     calculate_pval(alt_hypo(), df(), test_statistic()))
 )
 
-output$critical_vals <- renderText("TODO")
+output$critical_vals <- renderText(
+    paste0(
+        "Critical value(s): ",
+        calculate_crit_val(alt_hypo(), df(), test_statistic(), sig_level()), collapse=" "
+    )
+)
 output$conclusion <- renderText(
     "yes"
 )
