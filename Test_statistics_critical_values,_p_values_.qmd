@@ -85,6 +85,7 @@ plotOutput('plot')
 
 ```{r}
 textOutput(outputId = "pval") # p value of the test statistic
+textOutput(outputId = "critical_vals")
 textOutput(outputId = "conclusion")
 numericInput('test_statistic',
 label = "Test statistic value:"
@@ -190,6 +191,21 @@ dist_plot <- function (distribution, df, alt_hypo, sig_level, test_statistic=0) 
 
 ```{r}
 #| context: server
+
+
+calculate_pval <- function(alt_hypo, df, t_stat) {
+    if (alt_hypo == "neq") {
+        return(2 * pt(abs(t_stat), df = df, lower.tail=FALSE))
+    } else if (alt_hypo == "lt") {
+        return(pt(t_stat, df=df, lower.tail=TRUE))
+    } else {
+        return(pt(t_stat, df=df, lower.tail=FALSE))
+    }
+}
+
+```
+```{r}
+#| context: server
 #| 
 #dist_plot('t', df=10, tailness="one-tailed", 0.05)
 
@@ -220,8 +236,10 @@ output$plot <- renderPlot(
 )
 output$pval <- renderText(
     paste("p-value: ",
-    distribution_functions[['t']]$p(test_statistic(), df(), lower=FALSE))
+    calculate_pval(alt_hypo(), df(), test_statistic()))
 )
+
+output$critical_vals <- renderText("TODO")
 output$conclusion <- renderText(
     "yes"
 )
